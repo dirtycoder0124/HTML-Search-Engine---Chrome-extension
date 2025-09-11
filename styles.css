@@ -1,0 +1,140 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 15px;
+  width: 320px;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+h2 {
+  margin-top: 0;
+  text-align: center;
+  color: #1b1b1b;
+  font-size: 1.4em;
+}
+
+input, select {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95em;
+  box-sizing: border-box;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #1DA1F2;
+  box-shadow: 0 0 5px rgba(29,161,242,0.5);
+}
+
+button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #1DA1F2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #0d8ddb;
+}
+
+#status {
+  margin-top: 10px;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+#status.success {
+  color: green;
+}
+
+#status.error {
+  color: red;
+}
+
+ul {
+  padding-left: 15px;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
+code {
+  background: #e9ecef;
+  display: block;
+  padding: 4px 6px;
+  margin-top: 2px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #2c3e50;
+}
+
+a {
+  color: #1DA1F2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Optional: Twitter handle at bottom */
+#twitterHandle {
+  display: block;
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+/* Found results container */
+#results {
+  margin-top: 10px;
+}
+
+/* Each result card */
+.result-card {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  font-size: 0.9em;
+}
+
+/* Keyword highlight */
+.result-card b {
+  color: #d6336c; /* bright pink/red for keyword */
+}
+
+/* URL link */
+.result-card a {
+  color: #1DA1F2;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.result-card a:hover {
+  text-decoration: underline;
+}
+
+/* Snippet line */
+.result-card code {
+  display: block;
+  background-color: #f4f6f7;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  font-size: 0.85em;
+  color: #495057;
+}

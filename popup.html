@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HTML Search Engine</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h2>HTML Search Engine</h2>
+
+  <label>Keywords (comma separated):</label><br>
+  <input type="text" id="keywords" placeholder="e.g. password, token"><br><br>
+
+  <label>Max Links to Scan:</label><br>
+  <select id="maxLinks">
+    <option value="10">10</option>
+    <option value="20">20</option>
+    <option value="30">30</option>
+    <option value="all">All Internal Links</option>
+  </select><br><br>
+
+  <label>Notification Mode:</label><br>
+  <select id="notifyMode">
+    <option value="notification">Chrome Notification</option>
+    <option value="alert">Page Alert</option>
+    <option value="disabled">Disabled</option>
+  </select><br><br>
+
+  <button id="save">Save Settings</button>
+  <p id="status"></p>
+
+  <hr>
+  <button id="showKeywords">Show Saved Keywords</button>
+  <div id="keywordsList"></div>
+
+  <hr>
+  <button id="showAll">Show All Found Links</button>
+  <div id="results"></div>
+
+  <button id="clearAll">Clear All Found Links</button>
+ 
+<hr>
+<label>Follow me on Twitter: <a href="https://x.com/dirtycoder0124" target="_blank">@dirtycoder0124</a></label>
+
+
+  <script src="popup.js"></script>
+</body>
+</html>
