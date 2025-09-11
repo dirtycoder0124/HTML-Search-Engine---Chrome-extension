@@ -15,6 +15,18 @@ This tool is perfect for Bug Hunters, Penetration Testers, and anyone who wants 
 
 5. Lightweight, fast, and easy to use.
 
+# Installation
+
+1. Download or clone this repository.
+
+2. Open Chrome and go to chrome://extensions/.
+
+3. Enable Developer mode.
+
+4. Click Load unpacked and select the folder containing the extension.
+
+5. The extension icon will appear in the toolbar – click it to start scanning websites instantly.
+
 # Screenshot
 <img width="1754" height="862" alt="image" src="https://github.com/user-attachments/assets/80722e17-8e10-4d27-9a04-08326fd3934c" />
 
