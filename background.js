@@ -8,6 +8,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
     const maxLinks = data.maxLinks || "10";
     let foundResults = data.foundResults || [];
 
+    // If no keywords → skip scanning, but still keep settings saved
     if (keywords.length === 0) return;
 
     try {
@@ -58,6 +59,9 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
 
         if (notifyMode !== "disabled") {
           let message = found.slice(0, 3).map(f => `${f.keyword} @ ${f.url}`).join("\n");
+          if (found.length > 3) {
+            message += `\n+${found.length - 3} more...`;
+          }
           if (notifyMode === "notification") {
             chrome.notifications.create({
               type: "basic",
