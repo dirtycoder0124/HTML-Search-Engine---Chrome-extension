@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load saved settings
   chrome.storage.local.get(["keywords", "notifyMode", "maxLinks"], (data) => {
-    
     if (data.notifyMode) notifyModeSelect.value = data.notifyMode;
     if (data.maxLinks) maxLinksSelect.value = data.maxLinks;
   });
@@ -20,17 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Save keywords and settings
   saveBtn.addEventListener("click", () => {
     const newKeywords = keywordsInput.value
-      .split(",")
-      .map(k => k.trim())
-      .filter(k => k.length > 0);
-
-    if (newKeywords.length === 0) {
-      status.textContent = "⚠️ Enter at least one keyword.";
-      return;
-    }
+      ? keywordsInput.value.split(",").map(k => k.trim()).filter(Boolean)
+      : [];
 
     chrome.storage.local.get(["keywords"], (data) => {
       let keywords = data.keywords || [];
+
+      // Merge only if new keywords entered
       newKeywords.forEach(k => {
         if (!keywords.includes(k)) keywords.push(k);
       });
@@ -55,14 +50,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-function escapeHTML(str) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+      function escapeHTML(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
       const list = document.createElement("ul");
       data.foundResults.forEach(item => {
@@ -74,7 +69,7 @@ function escapeHTML(str) {
       });
       resultsDiv.appendChild(list);
     });
-});
+  });
 
   // Show all saved keywords with delete button
   function displayKeywords() {
