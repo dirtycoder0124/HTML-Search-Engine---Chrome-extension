@@ -8,7 +8,10 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
     const maxLinks = data.maxLinks || "10";
     let foundResults = data.foundResults || [];
 
-    // If no keywords → skip scanning, but still keep settings saved
+    // 🚫 Completely disable extension if notifications are disabled
+    if (notifyMode === "disabled") return;
+
+    // If no keywords → skip scanning
     if (keywords.length === 0) return;
 
     try {
