@@ -46,7 +46,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
             findMatches(text, result.links[i], kw, found);
           }
         } catch (e) {
-          console.error("dirty_search fetch failed:", result.links[i], e);
+          console.error("HTML_search fetch failed:", result.links[i], e);
         }
       }
 
@@ -69,7 +69,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
             chrome.notifications.create({
               type: "basic",
               iconUrl: "icon.png",
-              title: "dirty_search found matches!",
+              title: "HTML_search found matches!",
               message: message || `${found.length} matches found.`,
               priority: 2,
               requireInteraction: true
@@ -77,7 +77,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
           } else if (notifyMode === "alert") {
             chrome.scripting.executeScript({
               target: { tabId: details.tabId },
-              func: (msg) => alert("dirty_search:\n" + msg),
+              func: (msg) => alert("HTML_search:\n" + msg),
               args: [message]
             });
           }
@@ -85,7 +85,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
       }
 
     } catch (err) {
-      console.error("dirty_search autorun error:", err);
+      console.error("HTML_search autorun error:", err);
     }
   });
 });
