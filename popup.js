@@ -34,9 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const maxLinks = maxLinksSelect.value;
 
       chrome.storage.local.set({ keywords, notifyMode, maxLinks }, () => {
-        status.textContent = "✅ Settings saved!";
-        keywordsInput.value = "";
-        setTimeout(() => status.textContent = "", 2000);
+        status.textContent = "Settings saved!";
+		status.className = "success";
+		keywordsInput.value = "";
+		setTimeout(() => {
+		  status.textContent = "";
+		  status.className = "";
+		}, 2000);
       });
     });
   });
