@@ -2,92 +2,114 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
   if (details.frameId !== 0) return;
   if (!details.url.startsWith("http")) return;
 
-  chrome.storage.local.get(["keywords", "notifyMode", "foundResults", "maxLinks"], async (data) => {
-    const keywords = data.keywords || [];
-    const notifyMode = data.notifyMode || "notification";
-    const maxLinks = data.maxLinks || "10";
-    let foundResults = data.foundResults || [];
+  chrome.storage.local.get(
+    ["keywords", "notifyMode", "foundResults", "maxLinks"],
+    async (data) => {
+      const keywords = data.keywords || [];
+      const notifyMode = data.notifyMode || "notification";
+      const maxLinks = data.maxLinks || "10";
+      let foundResults = data.foundResults || [];
 
-    // 🚫 Completely disable extension if notifications are disabled
-    if (notifyMode === "disabled") return;
-
-    // If no keywords → skip scanning
-    if (keywords.length === 0) return;
-
-    try {
-      const [{ result }] = await chrome.scripting.executeScript({
-        target: { tabId: details.tabId },
-        func: () => {
-          const html = document.documentElement.outerHTML;
-          const base = window.location.origin;
-          const anchors = [...document.querySelectorAll("a[href]")];
-          const links = anchors
-            .map(a => a.href)
-            .filter(h => h.startsWith(base));
-          return { html, links: [...new Set(links)] };
-        }
-      });
+      // 🚫 Disable completely if notifications disabled
+      if (notifyMode === "disabled") return;
+      if (keywords.length === 0) return;
 
       let found = [];
 
-      // Search current page
-      for (let kw of keywords) {
-        findMatches(result.html, details.url, kw, found);
-      }
-
-      // Determine how many links to scan
-      const linkLimit = maxLinks === "all" ? result.links.length : parseInt(maxLinks);
-
-      for (let i = 0; i < Math.min(result.links.length, linkLimit); i++) {
+      try {
+        // --- (1) Scan raw HTML source ---
         try {
-          let res = await fetch(result.links[i]);
+          let res = await fetch(details.url);
           let text = await res.text();
           for (let kw of keywords) {
-            findMatches(text, result.links[i], kw, found);
+            findMatches(text, details.url, kw, found);
           }
         } catch (e) {
-          console.error("HTML_search fetch failed:", result.links[i], e);
+          console.error("HTML_search fetch failed:", details.url, e);
         }
-      }
 
-      if (found.length > 0) {
-        // Remove duplicates
-        found.forEach(f => {
-          if (!foundResults.some(r => r.url === f.url && r.keyword === f.keyword && r.lineNum === f.lineNum)) {
-            foundResults.push(f);
+        // --- (2) Scan live DOM after delay (for dynamic content) ---
+        const [{ result: dom }] = await chrome.scripting.executeScript({
+          target: { tabId: details.tabId },
+          func: async () => {
+            // wait for hydration
+            await new Promise(r => setTimeout(r, 2000));
+            const base = window.location.origin;
+            const anchors = [...document.querySelectorAll("a[href]")];
+            const links = anchors
+              .map(a => a.href)
+              .filter(h => h.startsWith(base));
+            return {
+              html: document.documentElement.outerHTML,
+              links: [...new Set(links)]
+            };
           }
         });
 
-        chrome.storage.local.set({ foundResults });
+        for (let kw of keywords) {
+          findMatches(dom.html, details.url, kw, found);
+        }
 
-        if (notifyMode !== "disabled") {
-          let message = found.slice(0, 3).map(f => `${f.keyword} @ ${f.url}`).join("\n");
-          if (found.length > 3) {
-            message += `\n+${found.length - 3} more...`;
-          }
-          if (notifyMode === "notification") {
-            chrome.notifications.create({
-              type: "basic",
-              iconUrl: "icon.png",
-              title: "HTML_search found matches!",
-              message: message || `${found.length} matches found.`,
-              priority: 2,
-              requireInteraction: true
-            });
-          } else if (notifyMode === "alert") {
-            chrome.scripting.executeScript({
-              target: { tabId: details.tabId },
-              func: (msg) => alert("HTML_search:\n" + msg),
-              args: [message]
-            });
+        // --- (3) Scan internal links (limited by maxLinks) ---
+        const linkLimit =
+          maxLinks === "all" ? dom.links.length : parseInt(maxLinks);
+
+        for (let i = 0; i < Math.min(dom.links.length, linkLimit); i++) {
+          try {
+            let res = await fetch(dom.links[i]);
+            let text = await res.text();
+            for (let kw of keywords) {
+              findMatches(text, dom.links[i], kw, found);
+            }
+          } catch (e) {
+            console.error("HTML_search fetch failed:", dom.links[i], e);
           }
         }
-      }
 
-    } catch (err) {
-      console.error("HTML_search autorun error:", err);
+        // --- (4) Save + notify ---
+        if (found.length > 0) {
+          found.forEach(f => {
+            if (
+              !foundResults.some(
+                r => r.url === f.url && r.keyword === f.keyword && r.lineNum === f.lineNum
+              )
+            ) {
+              foundResults.push(f);
+            }
+          });
+
+          chrome.storage.local.set({ foundResults });
+
+          if (notifyMode !== "disabled") {
+            let message = found.slice(0, 3).map(f => `${f.keyword} @ ${f.url}`).join("\n");
+            if (found.length > 3) {
+              message += `\n+${found.length - 3} more...`;
+            }
+
+            if (notifyMode === "notification") {
+              chrome.notifications.create({
+                type: "basic",
+                iconUrl: "icon.png",
+                title: "HTML_search found matches!",
+                message: message || `${found.length} matches found.`,
+                priority: 2,
+                requireInteraction: true
+              });
+            } else if (notifyMode === "alert") {
+              chrome.scripting.executeScript({
+                target: { tabId: details.tabId },
+                func: (msg) => alert("HTML_search:\n" + msg),
+                args: [message]
+              });
+            }
+          }
+        }
+
+      } catch (err) {
+        console.error("HTML_search autorun error:", err);
+      }
     }
-  });
+  );
 });
 
 function findMatches(source, url, keyword, results) {
