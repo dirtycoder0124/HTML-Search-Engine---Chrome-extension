@@ -7,6 +7,15 @@
 <body>
   <h2>HTML Search Engine</h2>
 
+  <div class="toggle-container">
+    <label class="switch">
+      <input type="checkbox" id="siteToggle">
+      <span class="slider round"></span>
+    </label>
+    <span id="siteLabel" class="site-label"></span>
+  </div>
+  <hr>
+
   <label>Keywords (comma separated):</label><br>
   <input type="text" id="keywords" placeholder="e.g. password, token"><br><br>
 
@@ -38,9 +47,10 @@
 
   <button id="clearAll">Clear All Found Links</button>
  
-<hr>
-<label>Follow me on Twitter: <a href="https://x.com/dirtycoder0124" target="_blank">@dirtycoder0124</a></label>
-
+  <hr>
+  <label>Follow me on Twitter: 
+    <a href="https://x.com/dirtycoder0124" target="_blank">@dirtycoder0124</a>
+  </label>
 
   <script src="popup.js"></script>
 </body>
