@@ -1,6 +1,14 @@
+// Background logic for scanning only active sites
+
 chrome.webNavigation.onCompleted.addListener(async (details) => {
   if (details.frameId !== 0) return;
   if (!details.url.startsWith("http")) return;
+
+  const domain = new URL(details.url).hostname;
+
+  // Check if this site is active
+  const { activeSites = {} } = await chrome.storage.local.get("activeSites");
+  if (!activeSites[domain]) return; // 🚫 Skip if OFF
 
   chrome.storage.local.get(
     ["keywords", "notifyMode", "foundResults", "maxLinks"],
@@ -10,14 +18,13 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
       const maxLinks = data.maxLinks || "10";
       let foundResults = data.foundResults || [];
 
-      // 🚫 Disable completely if notifications disabled
       if (notifyMode === "disabled") return;
       if (keywords.length === 0) return;
 
       let found = [];
 
       try {
-        // --- (1) Scan raw HTML source ---
+        // --- (1) Scan raw HTML ---
         try {
           let res = await fetch(details.url);
           let text = await res.text();
@@ -28,11 +35,10 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
           console.error("HTML_search fetch failed:", details.url, e);
         }
 
-        // --- (2) Scan live DOM after delay (for dynamic content) ---
+        // --- (2) Scan live DOM ---
         const [{ result: dom }] = await chrome.scripting.executeScript({
           target: { tabId: details.tabId },
           func: async () => {
-            // wait for hydration
             await new Promise(r => setTimeout(r, 2000));
             const base = window.location.origin;
             const anchors = [...document.querySelectorAll("a[href]")];
@@ -50,7 +56,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
           findMatches(dom.html, details.url, kw, found);
         }
 
-        // --- (3) Scan internal links (limited by maxLinks) ---
+        // --- (3) Scan internal links ---
         const linkLimit =
           maxLinks === "all" ? dom.links.length : parseInt(maxLinks);
 
