@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const keywordsInput = document.getElementById("keywords");
   const notifyModeSelect = document.getElementById("notifyMode");
   const maxLinksSelect = document.getElementById("maxLinks");
@@ -9,6 +9,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const showKeywordsBtn = document.getElementById("showKeywords");
   const keywordsListDiv = document.getElementById("keywordsList");
   const clearAllBtn = document.getElementById("clearAll");
+  const siteToggle = document.getElementById("siteToggle");
+  const siteLabel = document.getElementById("siteLabel");
+
+  // Get current tab + domain
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let currentDomain = "";
+  if (tab.url && tab.url.startsWith("http")) {
+    currentDomain = new URL(tab.url).hostname;
+    siteLabel.textContent = `Turn ON for: ${currentDomain}`;
+  }
+
+  // Load current activeSites state
+  chrome.storage.local.get(["activeSites"], (data) => {
+    const activeSites = data.activeSites || {};
+    siteToggle.checked = !!activeSites[currentDomain];
+  });
+
+  // Toggle site on/off
+  siteToggle.addEventListener("change", () => {
+    chrome.storage.local.get(["activeSites"], (data) => {
+      let activeSites = data.activeSites || {};
+      if (siteToggle.checked) {
+        activeSites[currentDomain] = true;
+      } else {
+        delete activeSites[currentDomain];
+      }
+      chrome.storage.local.set({ activeSites });
+    });
+  });
 
   // Load saved settings
   chrome.storage.local.get(["keywords", "notifyMode", "maxLinks"], (data) => {
@@ -25,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.storage.local.get(["keywords"], (data) => {
       let keywords = data.keywords || [];
 
-      // Merge only if new keywords entered
       newKeywords.forEach(k => {
         if (!keywords.includes(k)) keywords.push(k);
       });
@@ -35,12 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       chrome.storage.local.set({ keywords, notifyMode, maxLinks }, () => {
         status.textContent = "Settings saved!";
-		status.className = "success";
-		keywordsInput.value = "";
-		setTimeout(() => {
-		  status.textContent = "";
-		  status.className = "";
-		}, 2000);
+        status.className = "success";
+        keywordsInput.value = "";
+        setTimeout(() => {
+          status.textContent = "";
+          status.className = "";
+        }, 2000);
       });
     });
   });
