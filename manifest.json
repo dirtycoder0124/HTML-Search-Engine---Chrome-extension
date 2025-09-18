@@ -1,13 +1,12 @@
 {
   "manifest_version": 3,
   "name": "HTML_Search_Engine",
-  "version": "2.1",
-  "description": "Auto-search saved keywords in HTML source + internal links, with notifications or alerts.",
+  "version": "3.1",
+  "description": "Search saved keywords in HTML source + internal links, only on sites you enable.",
   "permissions": ["scripting", "tabs", "storage", "webNavigation", "notifications"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "HTML_Search_Engine",
     "default_icon": {
       "16": "icon.png",
       "32": "icon.png",
