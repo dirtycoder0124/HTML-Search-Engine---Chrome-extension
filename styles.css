@@ -99,6 +99,7 @@ a:hover {
 /* Found results container */
 #results {
   margin-top: 10px;
+  font-size: 14px;
 }
 
 /* Each result card */
