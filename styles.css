@@ -196,3 +196,40 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(22px);
 }
+
+
+/* Container for parameter links */
+#linksWithParams {
+  margin-top: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Card style for each link */
+.result-card {
+  background: #ffffff;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-size: 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  word-wrap: break-word;
+}
+
+.result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+/* Link inside card */
+.result-card a {
+  color: #0077cc;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.result-card a:hover {
+  text-decoration: underline;
+}
