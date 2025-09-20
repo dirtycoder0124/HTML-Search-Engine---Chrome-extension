@@ -285,7 +285,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 		decodedLink = link; // fallback if decoding fails
 	  }
 
-	  card.innerHTML = `<a href="${link}" target="_blank">${decodedLink}</a>`;
+	   // Create <a> element safely
+	  const a = document.createElement("a");
+	  a.href = link;              // original encoded link for navigation
+	  a.target = "_blank";
+	  a.textContent = decodedLink; // decoded link only shown as text (no HTML execution)
+
+	  card.appendChild(a);
 	  list.appendChild(card);
 	});
 
