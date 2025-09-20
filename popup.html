@@ -3,54 +3,111 @@
 <head>
   <title>HTML Search Engine</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+    .tab {
+      padding: 8px 15px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-bottom: none;
+      background: #f1f1f1;
+      margin-right: 5px;
+    }
+    .tab.active {
+      background: #fff;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    /* Bigger link styling */
+    #linksWithParams ul {
+      list-style: none;
+      padding: 0;
+    }
+    #linksWithParams li {
+      margin-bottom: 8px;
+      font-size: 14px;
+      word-break: break-all;
+    }
+    #linksWithParams a {
+      color: #0073e6;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    #linksWithParams a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h2>HTML Search Engine</h2>
-
-  <div class="toggle-container">
-    <label class="switch">
-      <input type="checkbox" id="siteToggle">
-      <span class="slider round"></span>
-    </label>
-    <span id="siteLabel" class="site-label"></span>
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="home">Home</div>
+    <div class="tab" data-tab="params">All Parameter Links</div>
   </div>
-  <hr>
 
-  <label>Keywords (comma separated):</label><br>
-  <input type="text" id="keywords" placeholder="e.g. password, token"><br><br>
+  <!-- Home Content -->
+  <div id="home" class="tab-content active">
+    <h2>HTML Search Engine</h2>
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" id="siteToggle">
+        <span class="slider round"></span>
+      </label>
+      <span id="siteLabel" class="site-label"></span>
+    </div>
+    <hr>
 
-  <label>Max Links to Scan:</label><br>
-  <select id="maxLinks">
-    <option value="10">10</option>
-    <option value="20">20</option>
-    <option value="30">30</option>
-    <option value="all">All Internal Links</option>
-  </select><br><br>
+    <label>Keywords (comma separated):</label><br>
+    <input type="text" id="keywords" placeholder="e.g. password, token"><br><br>
 
-  <label>Notification Mode:</label><br>
-  <select id="notifyMode">
-    <option value="notification">Chrome Notification</option>
-    <option value="alert">Page Alert</option>
-    <option value="disabled">Disabled</option>
-  </select><br><br>
+    <label>Max Links to Scan:</label><br>
+    <select id="maxLinks">
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="30">30</option>
+      <option value="all">All Internal Links</option>
+    </select><br><br>
 
-  <button id="save">Save Settings</button>
-  <p id="status"></p>
+    <label>Notification Mode:</label><br>
+    <select id="notifyMode">
+      <option value="notification">Chrome Notification</option>
+      <option value="alert">Page Alert</option>
+      <option value="disabled">Disabled</option>
+    </select><br><br>
 
-  <hr>
-  <button id="showKeywords">Show Saved Keywords</button>
-  <div id="keywordsList"></div>
+    <button id="save">Save Settings</button>
+    <p id="status"></p>
 
-  <hr>
-  <button id="showAll">Show All Found Links</button>
-  <div id="results"></div>
+    <hr>
+    <button id="showKeywords">Show Saved Keywords</button>
+    <div id="keywordsList"></div>
 
-  <button id="clearAll">Clear All Found Links</button>
+    <hr>
+    <button id="showAll">Show All Found Links</button>
+    <div id="results"></div>
+
+    <button id="clearAll">Clear All Found Links</button>
  
-  <hr>
-  <label>Follow me on Twitter: 
-    <a href="https://x.com/dirtycoder0124" target="_blank">@dirtycoder0124</a>
-  </label>
+    <hr>
+    <label>Follow me on Twitter: 
+      <a href="https://x.com/dirtycoder0124" target="_blank">@dirtycoder0124</a>
+    </label>
+  </div>
+
+  <!-- All Parameter Links Content -->
+  <div id="params" class="tab-content">
+    <h2>All Parameter Links</h2>
+    <div id="linksWithParams">Loading...</div>
+  </div>
 
   <script src="popup.js"></script>
 </body>
