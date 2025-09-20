@@ -1,4 +1,29 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  // --- TAB HANDLING ---
+  const tabs = document.querySelectorAll(".tab");
+  const tabContents = document.querySelectorAll(".tab-content");
+  const linksWithParamsDiv = document.getElementById("linksWithParams");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.getAttribute("data-tab");
+
+      // Remove active from all tabs & contents
+      tabs.forEach(t => t.classList.remove("active"));
+      tabContents.forEach(c => c.classList.remove("active"));
+
+      // Add active to selected
+      tab.classList.add("active");
+      document.getElementById(target).classList.add("active");
+
+      // Auto-fetch when "All Parameter Links" tab is opened
+      if (target === "params") {
+        fetchLinksWithParams();
+      }
+    });
+  });
+
+  // --- Elements ---
   const keywordsInput = document.getElementById("keywords");
   const notifyModeSelect = document.getElementById("notifyMode");
   const maxLinksSelect = document.getElementById("maxLinks");
@@ -12,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const siteToggle = document.getElementById("siteToggle");
   const siteLabel = document.getElementById("siteLabel");
 
-  // Get current tab + domain
+  // --- Get current tab + domain ---
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   let currentDomain = "";
   if (tab.url && tab.url.startsWith("http")) {
@@ -20,13 +45,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     siteLabel.textContent = `Turn ON for: ${currentDomain}`;
   }
 
-  // Load current activeSites state
+  // --- Load current activeSites state ---
   chrome.storage.local.get(["activeSites"], (data) => {
     const activeSites = data.activeSites || {};
     siteToggle.checked = !!activeSites[currentDomain];
   });
 
-  // Toggle site on/off
+  // --- Toggle site on/off ---
   siteToggle.addEventListener("change", () => {
     chrome.storage.local.get(["activeSites"], (data) => {
       let activeSites = data.activeSites || {};
@@ -39,13 +64,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Load saved settings
+  // --- Load saved settings ---
   chrome.storage.local.get(["keywords", "notifyMode", "maxLinks"], (data) => {
     if (data.notifyMode) notifyModeSelect.value = data.notifyMode;
     if (data.maxLinks) maxLinksSelect.value = data.maxLinks;
   });
 
-  // Save keywords and settings
+  // --- Save keywords and settings ---
   saveBtn.addEventListener("click", () => {
     const newKeywords = keywordsInput.value
       ? keywordsInput.value.split(",").map(k => k.trim()).filter(Boolean)
@@ -53,7 +78,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     chrome.storage.local.get(["keywords"], (data) => {
       let keywords = data.keywords || [];
-
       newKeywords.forEach(k => {
         if (!keywords.includes(k)) keywords.push(k);
       });
@@ -73,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Show all found results
+  // --- Show all found results ---
   showAllBtn.addEventListener("click", () => {
     chrome.storage.local.get(["foundResults"], (data) => {
       resultsDiv.innerHTML = "";
@@ -103,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Show all saved keywords with delete button
+  // --- Show all saved keywords with delete button ---
   function displayKeywords() {
     chrome.storage.local.get(["keywords"], (data) => {
       keywordsListDiv.innerHTML = "";
@@ -151,10 +175,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       keywordsListDiv.appendChild(list);
     });
   }
-
   showKeywordsBtn.addEventListener("click", displayKeywords);
 
-  // Clear all found links
+  // --- Clear all found links ---
   clearAllBtn.addEventListener("click", () => {
     chrome.storage.local.set({ foundResults: [] }, () => {
       resultsDiv.innerHTML = "";
@@ -162,4 +185,112 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => status.textContent = "", 2000);
     });
   });
+
+  // --- Fetch & Show URLs with parameters (internal + filtered) ---
+  async function fetchLinksWithParams() {
+    linksWithParamsDiv.innerHTML = "Loading...";
+
+    const [{ result: linksWithParams }] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        const baseDomain = window.location.hostname;
+        const result = [];
+
+        // 1. Internal <a> links with ?
+        document.querySelectorAll("a[href]").forEach(a => {
+          try {
+            const urlObj = new URL(a.href, window.location.origin);
+            if (urlObj.hostname === baseDomain && urlObj.search) result.push(urlObj.href);
+          } catch (e) {}
+        });
+
+        // 2. Internal <meta> URLs
+        document.querySelectorAll("meta[content]").forEach(meta => {
+          try {
+            const content = meta.content.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+            const matches = content.match(/https?:\/\/[^\s"']+\?[^\s"']+/g);
+            if (matches) {
+              matches.forEach(u => {
+                const urlObj = new URL(u);
+                if (urlObj.hostname === baseDomain) result.push(urlObj.href);
+              });
+            }
+          } catch (e) {}
+        });
+
+        // 3. Internal URLs in <script> tags
+        document.querySelectorAll("script").forEach(script => {
+          try {
+            const matches = script.textContent.match(/https?:\/\/[^\s"']+\?[^\s"']+/g);
+            if (matches) {
+              matches.forEach(u => {
+                const urlObj = new URL(u);
+                if (urlObj.hostname === baseDomain) result.push(urlObj.href);
+              });
+            }
+          } catch (e) {}
+        });
+
+        return [...new Set(result)];
+      }
+    });
+
+    if (!linksWithParams || linksWithParams.length === 0) {
+      linksWithParamsDiv.textContent = "No internal links with parameters found.";
+      return;
+    }
+
+    // --- Filter out static file types ---
+    const ignoredExt = ['.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot'];
+    const filteredLinks = linksWithParams.filter(link => {
+      try {
+        const urlObj = new URL(link);
+        return !ignoredExt.some(ext => urlObj.pathname.toLowerCase().endsWith(ext));
+      } catch (e) {
+        return false;
+      }
+    });
+
+    if (filteredLinks.length === 0) {
+      linksWithParamsDiv.textContent = "No internal links with parameters found after filtering.";
+      return;
+    }
+
+    // --- Copy All button ---
+    const copyBtn = document.createElement("button");
+    copyBtn.textContent = "Copy All URLs";
+    copyBtn.style.marginBottom = "10px";
+   copyBtn.addEventListener("click", () => {
+    const decodedLinks = filteredLinks.map(link => {
+        try { return decodeURIComponent(link); } 
+        catch(e) { return link; }
+    });
+    navigator.clipboard.writeText(decodedLinks.join("\n")).then(() => {
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => (copyBtn.textContent = "Copy All URLs"), 2000);
+    });
+});
+
+    // --- Display filtered links ---
+	 const list = document.createElement("div"); 
+	filteredLinks.forEach(link => {
+	  const card = document.createElement("div");
+	  card.className = "result-card";
+
+	  // decode URL for display
+	  let decodedLink;
+	  try {
+		decodedLink = decodeURIComponent(link);
+	  } catch(e) {
+		decodedLink = link; // fallback if decoding fails
+	  }
+
+	  card.innerHTML = `<a href="${link}" target="_blank">${decodedLink}</a>`;
+	  list.appendChild(card);
+	});
+
+    linksWithParamsDiv.innerHTML = "";
+    linksWithParamsDiv.appendChild(copyBtn);
+    linksWithParamsDiv.appendChild(list);
+  }
 });
