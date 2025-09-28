@@ -33,5 +33,10 @@ This tool is perfect for Bug Hunters, Penetration Testers, and anyone who wants 
 
 <img width="470" height="730" alt="image" src="https://github.com/user-attachments/assets/e7ab0966-823f-4dd7-a2b0-ae62464022e1" />
 
+<img width="447" height="347" alt="image" src="https://github.com/user-attachments/assets/3d195dca-dd1a-4e16-b3d9-645285309eff" />
+
+
+
+
 
 
