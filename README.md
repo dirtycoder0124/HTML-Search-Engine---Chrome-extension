@@ -1,4 +1,4 @@
-<img width="942" height="183" alt="bug 1" src="https://github.com/user-attachments/assets/9ac8d559-f3e2-4b9e-a928-4c383710610b" /># HTML-Search-Engine---Chrome-extension
+# HTML-Search-Engine---Chrome-extension
 HTML Search Engine is a Chrome extension that automatically crawls and scans web pages’ source code + JS files and internal links for user-defined keywords. It stores the results and can send notifications or alerts.
 
 This tool is perfect for Bug Hunters, Penetration Testers, and anyone who wants a fast and clean way to search for keywords/secrets directly in a website’s source code from their browser.
@@ -30,8 +30,9 @@ This tool is perfect for Bug Hunters, Penetration Testers, and anyone who wants 
 
 # Here are some bugs found using this extension
 
-![Uploading<img width="875" height="184" alt="bug 2" src="https://github.com/user-attachments/assets/b2236e0e-a3c1-470b-8bf2-2d5eb262542d" />
- bug 1.png…]()
+<img width="942" height="183" alt="bug 1" src="https://github.com/user-attachments/assets/9ac8d559-f3e2-4b9e-a928-4c383710610b" />
+
+<img width="875" height="184" alt="bug 2" src="https://github.com/user-attachments/assets/59d84c32-0e0d-49c2-871a-2593267b9993" />
 
 
 # Screenshot
