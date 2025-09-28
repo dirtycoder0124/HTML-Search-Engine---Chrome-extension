@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   // --- TAB HANDLING ---
+  const inlineScriptToggle = document.getElementById("inlineScriptToggle");
   const tabs = document.querySelectorAll(".tab");
   const tabContents = document.querySelectorAll(".tab-content");
   const linksWithParamsDiv = document.getElementById("linksWithParams");
@@ -181,7 +182,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   clearAllBtn.addEventListener("click", () => {
     chrome.storage.local.set({ foundResults: [] }, () => {
       resultsDiv.innerHTML = "";
-      status.textContent = "✅ All results cleared!";
+      status.textContent = "All results cleared!";
       setTimeout(() => status.textContent = "", 2000);
     });
   });
