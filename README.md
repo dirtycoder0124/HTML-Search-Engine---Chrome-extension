@@ -12,8 +12,9 @@ This tool is perfect for Bug Hunters, Penetration Testers, and anyone who wants 
 3. Store results for easy reference.
 
 4. Send notifications or alerts when keywords are found.
+5. Display all links having Parameters (Perfect to find XSS and Open redirect Bugs)
 
-5. Lightweight, fast, and easy to use.
+6. Lightweight, fast, and easy to use.
 
 # Installation
 
